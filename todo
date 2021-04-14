@@ -19,3 +19,5 @@
 - [ ] [Run container](https://github.com/lariskovski/terraform-examples/blob/master/google_cloud/minecraft/main.tf#L94)
 
 - [ ] Check container
+
+[Integrating Terraform and Ansible](https://github.com/ernesen/Terraform-Ansible)
