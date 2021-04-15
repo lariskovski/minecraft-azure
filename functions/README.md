@@ -28,8 +28,8 @@ sudo npm install -g azure-functions-core-tools@3 --unsafe-perm true
 Interactive
 
 ~~~~
-func init   # Choose Python
-func new    # Choose Http trigger (9)
+func init --worker-runtime python
+func new --template "HTTP trigger" --name "HttpTrigger"
 ~~~~
 
 ### Set Environment Variables
