@@ -8,13 +8,13 @@
 
 - [ ] Create Azure function
 
-- [ ] Register app (service accout that is gonna run the function) on AD
+- [ ] Create App Registration (service account) on Active Directory
 
-- [ ] [Create iam permission for the registered app](https://stackoverflow.com/questions/42134892/the-client-with-object-id-does-not-have-authorization-to-perform-action-microso)
+- [ ] [Create iam permission for the App Registration. Function App > IAM > Role Assignments](https://stackoverflow.com/questions/42134892/the-client-with-object-id-does-not-have-authorization-to-perform-action-microso)
 
 - [ ] Set VM to spot
 
-- [ ] Add variables for Resource Group name, VM name etc
+- [ ] Add env variables for Resource Group name, VM name etc on Function App
 
 ### Ansible
 
