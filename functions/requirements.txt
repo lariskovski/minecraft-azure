@@ -1,0 +1,6 @@
+# pip3 install --upgrade pip
+# pip3 install -r functions/requirements.txt 
+azure-mgmt-compute~=4.3
+azure-mgmt-resource~=2.0
+# azure-mgmt-network~=2.2
+# haikunator

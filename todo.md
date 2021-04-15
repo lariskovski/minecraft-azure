@@ -6,7 +6,15 @@
 
 - [x] Create VM
 
+- [ ] Create Azure function
+
+- [ ] Create App Registration (service account) on Active Directory
+
+- [ ] [Create iam permission for the App Registration. Function App > IAM > Role Assignments](https://stackoverflow.com/questions/42134892/the-client-with-object-id-does-not-have-authorization-to-perform-action-microso)
+
 - [ ] Set VM to spot
+
+- [ ] Add env variables for Resource Group name, VM name etc on Function App
 
 ### Ansible
 
@@ -21,3 +29,13 @@
 - [ ] Check container
 
 [Integrating Terraform and Ansible](https://github.com/ernesen/Terraform-Ansible)
+
+###  Function
+
+- [ ] Check current status before start/stop
+
+- [ ] operation=status, returns vm status
+
+- [ ] Add variables for Resource Group and VM name
+
+- [ ] [Auth](https://stackoverflow.com/questions/42134892/the-client-with-object-id-does-not-have-authorization-to-perform-action-microso)
