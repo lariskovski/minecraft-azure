@@ -6,7 +6,9 @@
 
 - [x] Create VM
 
-- [ ] Create Azure function
+- [x] Create Azure function
+
+- [x] Terraform create Ansible Hosts file
 
 - [ ] Create App Registration (service account) on Active Directory
 
@@ -14,9 +16,11 @@
 
 - [ ] Set VM to spot
 
-- [ ] Add env variables for Resource Group name, VM name etc on Function App
+- [ ] Refactor to ddd env variables for Resource Group name, VM name etc
 
 ### Ansible
+
+- [ ] Publish function code to Function App
 
 - [ ] Format disk if necessary
 

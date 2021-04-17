@@ -22,7 +22,7 @@ resource "azurerm_managed_disk" "minedisk" {
   resource_group_name  = azurerm_resource_group.minecraft.name
   storage_account_type = "Standard_LRS"
   create_option        = "Empty"
-#   disk_size_gb         = "30" # 30GB minimal for the image
+  disk_size_gb         = "30" # 30GB minimal for the image
 
   tags = {
     environment = "production"
@@ -122,10 +122,10 @@ resource "azurerm_network_interface_security_group_association" "example" {
 
 
 # Create (and display on output) an SSH key
-resource "tls_private_key" "minesshkey" {
-  algorithm = "RSA"
-  rsa_bits = 4096
-}
+# resource "tls_private_key" "minesshkey" {
+#   algorithm = "RSA"
+#   rsa_bits = 4096
+# }
 # output "tls_private_key" { value = tls_private_key.minesshkey.private_key_pem }
 
 # Create virtual machine
@@ -143,10 +143,10 @@ resource "azurerm_linux_virtual_machine" "minevm" {
 
 
     os_disk {
-        # name              = "mineosdisk" # (optional) needs to be unique on RG if name is set, when another machine is created gives error
+        # name = "mineosdisk" # (optional) needs to be unique on RG if name is set, when another machine is created gives error
         caching           = "ReadWrite"
         storage_account_type = "Premium_LRS"
-        disk_size_gb = 10
+        disk_size_gb = 30
         # Set disk to ephemeral (read only?)
         # diff_disk_settings {
         # option = "Local"
@@ -166,7 +166,8 @@ resource "azurerm_linux_virtual_machine" "minevm" {
 
     admin_ssh_key {
         username       = "azureuser"
-        public_key     = tls_private_key.minesshkey.public_key_openssh
+        public_key     = file(var.pub_ssh_file)
+        # public_key     = tls_private_key.minesshkey.public_key_openssh
     }
 
 
@@ -175,9 +176,42 @@ resource "azurerm_linux_virtual_machine" "minevm" {
     }
 }
 
+resource "local_file" "hosts" {
+    content  = azurerm_linux_virtual_machine.minevm.public_ip_address
+    filename = "../ansible/hosts"
+}
+
 resource "azurerm_virtual_machine_data_disk_attachment" "attachminedisk" {
   managed_disk_id    = azurerm_managed_disk.minedisk.id
   virtual_machine_id = azurerm_linux_virtual_machine.minevm.id
   lun                = "10"
   caching            = "ReadWrite"
+}
+
+resource "azurerm_storage_account" "example" {
+  name                     = "startstopfunc"
+  resource_group_name      = azurerm_resource_group.minecraft.name
+  location                 = azurerm_resource_group.minecraft.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+}
+
+resource "azurerm_app_service_plan" "example" {
+  name                = "azure-functions-test-service-plan"
+  location            = azurerm_resource_group.minecraft.location
+  resource_group_name = azurerm_resource_group.minecraft.name
+
+  sku {
+    tier = "Standard"
+    size = "S1"
+  }
+}
+
+resource "azurerm_function_app" "example" {
+  name                       = "mine-function"
+  location                   = azurerm_resource_group.minecraft.location
+  resource_group_name        = azurerm_resource_group.minecraft.name
+  app_service_plan_id        = azurerm_app_service_plan.example.id
+  storage_account_name       = azurerm_storage_account.example.name
+  storage_account_access_key = azurerm_storage_account.example.primary_access_key
 }
