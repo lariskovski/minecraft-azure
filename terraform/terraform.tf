@@ -120,7 +120,6 @@ resource "azurerm_network_interface_security_group_association" "example" {
     network_security_group_id = azurerm_network_security_group.minesecgroup.id
 }
 
-
 # Create (and display on output) an SSH key
 # resource "tls_private_key" "minesshkey" {
 #   algorithm = "RSA"
@@ -134,7 +133,7 @@ resource "azurerm_linux_virtual_machine" "minevm" {
     location              = var.region
     resource_group_name   = azurerm_resource_group.minecraft.name
     network_interface_ids = [azurerm_network_interface.minenic.id]
-    size                  = "Standard_B1s"
+    size                  = "Standard_B2s"
     # size                  = "Standard_DS1_v2"
 
     # Set VM to Spot
@@ -200,7 +199,8 @@ resource "azurerm_app_service_plan" "example" {
   name                = "azure-functions-test-service-plan"
   location            = azurerm_resource_group.minecraft.location
   resource_group_name = azurerm_resource_group.minecraft.name
-
+  kind                = "Linux"
+  reserved            = true
   sku {
     tier = "Standard"
     size = "S1"
@@ -214,4 +214,5 @@ resource "azurerm_function_app" "example" {
   app_service_plan_id        = azurerm_app_service_plan.example.id
   storage_account_name       = azurerm_storage_account.example.name
   storage_account_access_key = azurerm_storage_account.example.primary_access_key
+  os_type                    = "linux"
 }

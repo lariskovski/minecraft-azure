@@ -1,3 +1,5 @@
-- hosts: mineserver
+- hosts: all
   roles:
   - setup
+  - function-publish
+  - minecraft-setup

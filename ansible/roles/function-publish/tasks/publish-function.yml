@@ -1,0 +1,28 @@
+- name: Create Default Python Http Function
+  shell: |
+    func init --worker-runtime python
+    func new --template "HTTP trigger" --name {{ function_dir_name }}
+  args:
+    chdir: "{{ mine_user_home }}/func"
+  become: yes
+
+- name: Copy init file
+  copy:
+    src: ../../../../functions/__init__.py
+    dest: "{{ mine_user_home }}/{{ function_dir_name }}/__init__.py"
+    mode: '0644'
+  become: True
+
+- name: Copy manage module file
+  copy:
+    src: ../../../../functions/manage_vm.py
+    dest: "{{ mine_user_home }}/{{ function_dir_name }}/manage_vm.py"
+    mode: '0644'
+  become: True
+
+# - name: Publish Function
+#   shell: |
+#     func azure functionapp publish mine-function --force
+#   args:
+#     chdir: "{{ mine_user_home }}/{{ function_dir_name }}"
+#   become: yes

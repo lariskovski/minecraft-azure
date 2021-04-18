@@ -12,6 +12,14 @@
 
 - [ ] Create App Registration (service account) on Active Directory
 
+- [ ] Fix Service plan for function and deploy service app instead of function app
+
+- [ ] Add env vars to function settings
+
+- [ ] Fix function stop operation
+
+- [ ] Divide main code into modules
+
 - [ ] [Create iam permission for the App Registration. Function App > IAM > Role Assignments](https://stackoverflow.com/questions/42134892/the-client-with-object-id-does-not-have-authorization-to-perform-action-microso)
 
 - [ ] Set VM to spot
@@ -22,15 +30,15 @@
 
 - [ ] Publish function code to Function App
 
-- [ ] Format disk if necessary
+- [x] Format disk if necessary
 
-- [ ] Mount disck sdc1
+- [x] Mount disck sdc1
 
-- [ ] Install Docker
+- [x] Download and install Minecraft
 
-- [ ] [Run container](https://github.com/lariskovski/terraform-examples/blob/master/google_cloud/minecraft/main.tf#L94)
+- [x] Check service
 
-- [ ] Check container
+- [ ] Add some cron job to update public IP on Cloudflare
 
 [Integrating Terraform and Ansible](https://github.com/ernesen/Terraform-Ansible)
 
@@ -43,3 +51,7 @@
 - [ ] Add variables for Resource Group and VM name
 
 - [ ] [Auth](https://stackoverflow.com/questions/42134892/the-client-with-object-id-does-not-have-authorization-to-perform-action-microso)
+
+## Misc
+
+- [ ] Add variables integration between ansible terraform etc

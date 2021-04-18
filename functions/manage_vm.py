@@ -9,14 +9,13 @@ import traceback
 
 from azure.common.credentials import ServicePrincipalCredentials
 from azure.mgmt.resource import ResourceManagementClient
-# from azure.mgmt.network import NetworkManagementClient
 from azure.mgmt.compute import ComputeManagementClient
 from azure.mgmt.compute.models import DiskCreateOption
 
 from msrestazure.azure_exceptions import CloudError
 
-VM_NAME = 'teste-vm'
-GROUP_NAME = "minecraft-docker"
+VM_NAME = 'minecraft'
+GROUP_NAME = "minecraft"
 
 def get_credentials():
     subscription_id = os.environ['AZURE_SUBSCRIPTION_ID']

@@ -1,0 +1,5 @@
+---
+# vars file for function-publish
+function_dir_name: "func/httptrigger"
+mine_user_home: "/home/minecraft"
+app_function_tf_name: "mine-function"

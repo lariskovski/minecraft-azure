@@ -1,0 +1,24 @@
+- name: Create a directory if it does not exist
+  file:
+    path: "{{ mine_user_home }}/{{ function_dir_name }}"
+    state: directory
+    mode: '0755'
+  become: True
+
+- name: Install function env packages
+  package:
+    name:
+      - nodejs
+      - npm
+    state: present
+  become: True
+
+- name: Install Azure funcstion tools
+  shell: |
+    sudo npm install -g azure-functions-core-tools@3 --unsafe-perm true
+  become: yes
+
+- name: Install Azure CLI
+  shell: |
+    curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+  become: yes
