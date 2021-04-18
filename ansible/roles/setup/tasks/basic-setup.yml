@@ -1,0 +1,59 @@
+- name: Install basic setup packages
+  package:
+    name:
+      - default-jre-headless
+      - wget
+    state: present
+    update_cache: true
+  become: True
+
+- name: Set timezone to America/Sao_Paulo
+  timezone:
+    name: America/Sao_Paulo
+  become: True
+
+- name: Create a new ext4 primary partition
+  parted:
+    device: /dev/sdc
+    number: 1
+    state: present
+    fs_type: ext4
+  become: True
+
+- name: Create a ext4 filesystem on /dev/sdb1 and check disk blocks
+  filesystem:
+    fstype: ext4
+    dev: /dev/sdc1
+    force: no
+  become: True
+
+- name: Mount FS
+  mount:
+    fstype: ext4
+    src: /dev/sdc1
+    path: /home/minecraft
+    state: mounted
+  become: True
+
+- name: Ensure group "minecraft" exists
+  group:
+    name: minecraft
+    state: present
+  become: True
+
+- name: Add minecraft user
+  user:
+    name: minecraft
+    group: minecraft
+    create_home: False
+    home: /home/minecraft
+  become: True
+
+- name: Change dir ownership, group and permissions
+  file:
+    path: /home/minecraft
+    owner: minecraft
+    group: minecraft
+    mode: '0755'
+    recurse: Yes
+  become: True
