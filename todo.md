@@ -16,6 +16,8 @@
 
 - [ ] Fix function stop operation
 
+- [ ] Add application insights for function
+
 - [ ] Divide main code into modules
 
 - [ ] Add remote backend
