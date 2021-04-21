@@ -1,0 +1,3 @@
+---
+# tasks file for setup
+- include: basic-setup.yml

@@ -1,0 +1,9 @@
+---
+# vars file for minecraft-setup
+# minecraft_download_url: "https://launcher.mojang.com/v1/objects/f02f4473dbf152c23d7d484952121db0b36698cb/server.jar"
+minecraft_download_url: "https://launcher.mojang.com/v1/objects/1b557e7b033b583cd9f66746b7a9ab1ec1673ced/server.jar"
+server_allow_cheats: true
+server_max_player: 5
+server_motd: "Mine Azure Server"
+server_enable_query: true
+server_game_mode: "survival"

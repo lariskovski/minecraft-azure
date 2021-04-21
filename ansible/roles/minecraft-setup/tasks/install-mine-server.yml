@@ -1,0 +1,43 @@
+- name: Download Minecraft server jar
+  get_url:
+    url: "{{ minecraft_download_url }}"
+    dest: "/home/minecraft/server.jar"
+    mode: '0554'
+    owner: minecraft
+    group: minecraft
+  become: True
+
+
+- name: Copy eula file
+  copy:
+    src: ../files/eula.txt
+    dest: "/home/minecraft/eula.txt"
+    owner: minecraft
+    group: minecraft
+    mode: '0644'
+  become: Yes
+
+- name: Copy server properties template file
+  copy:
+    src: ../templates/server.properties.j2
+    dest: "/home/minecraft/server.properties"
+    owner: minecraft
+    group: minecraft
+    mode: '0644'
+  become: Yes
+
+- name: Copy service file
+  template:
+    src: ../files/minecraftd.service
+    dest: /etc/systemd/system/minecraftd.service
+    owner: minecraft
+    group: minecraft
+    mode: '0644'
+  become: Yes
+
+- name: Make sure service is running
+  systemd:
+    state: started
+    name: minecraftd
+    enabled: yes
+  become: True

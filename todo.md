@@ -6,27 +6,47 @@
 
 - [x] Create VM
 
-- [ ] Create Azure function
+- [x] Create Azure function
 
-- [ ] Create App Registration (service account) on Active Directory
+- [x] Terraform create Ansible Hosts file
+
+- [x] Fix Service plan for function and deploy service app instead of function app
+
+- [ ] Add env vars to function settings
+
+- [ ] Fix function stop operation
+
+- [ ] Divide main code into modules
+
+- [ ] Add remote backend
 
 - [ ] [Create iam permission for the App Registration. Function App > IAM > Role Assignments](https://stackoverflow.com/questions/42134892/the-client-with-object-id-does-not-have-authorization-to-perform-action-microso)
 
 - [ ] Set VM to spot
 
-- [ ] Add env variables for Resource Group name, VM name etc on Function App
+- [x] Refactor to ddd env variables for Resource Group name, VM name etc
+
+- [ ] Update DNS entry with new IP
+
+- [ ] Output function URL
+
+- [ ] Add local exec to call Ansible
 
 ### Ansible
 
-- [ ] Format disk if necessary
+- [x] Format disk if necessary
 
-- [ ] Mount disck sdc1
+- [x] Mount disck sdc1
 
-- [ ] Install Docker
+- [x] Download and install Minecraft
 
-- [ ] [Run container](https://github.com/lariskovski/terraform-examples/blob/master/google_cloud/minecraft/main.tf#L94)
+- [x] Check service
 
-- [ ] Check container
+- [ ] Az Login
+
+- [ ] Publish function code to Function App
+
+- [ ] Download latest world files (if exists on storage account) & restart service
 
 [Integrating Terraform and Ansible](https://github.com/ernesen/Terraform-Ansible)
 
@@ -39,3 +59,7 @@
 - [ ] Add variables for Resource Group and VM name
 
 - [ ] [Auth](https://stackoverflow.com/questions/42134892/the-client-with-object-id-does-not-have-authorization-to-perform-action-microso)
+
+## Misc
+
+- [ ] Add variables integration between ansible terraform etc

@@ -1,0 +1,5 @@
+---
+# tasks file for function-publish
+- include: setup-temp-env.yml
+- include: publish-function.yml
+# - include: destroy-temp-env.yml
