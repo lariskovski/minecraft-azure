@@ -1,2 +1,0 @@
-[mineserver]
-xxxxxxxxxx  ansible_connection=ssh  ansible_user=azureuser

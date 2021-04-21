@@ -10,9 +10,7 @@
 
 - [x] Terraform create Ansible Hosts file
 
-- [ ] Create App Registration (service account) on Active Directory
-
-- [ ] Fix Service plan for function and deploy service app instead of function app
+- [x] Fix Service plan for function and deploy service app instead of function app
 
 - [ ] Add env vars to function settings
 
@@ -20,15 +18,21 @@
 
 - [ ] Divide main code into modules
 
+- [ ] Add remote backend
+
 - [ ] [Create iam permission for the App Registration. Function App > IAM > Role Assignments](https://stackoverflow.com/questions/42134892/the-client-with-object-id-does-not-have-authorization-to-perform-action-microso)
 
 - [ ] Set VM to spot
 
-- [ ] Refactor to ddd env variables for Resource Group name, VM name etc
+- [x] Refactor to ddd env variables for Resource Group name, VM name etc
+
+- [ ] Update DNS entry with new IP
+
+- [ ] Output function URL
+
+- [ ] Add local exec to call Ansible
 
 ### Ansible
-
-- [ ] Publish function code to Function App
 
 - [x] Format disk if necessary
 
@@ -38,7 +42,11 @@
 
 - [x] Check service
 
-- [ ] Add some cron job to update public IP on Cloudflare
+- [ ] Az Login
+
+- [ ] Publish function code to Function App
+
+- [ ] Download latest world files (if exists on storage account) & restart service
 
 [Integrating Terraform and Ansible](https://github.com/ernesen/Terraform-Ansible)
 
