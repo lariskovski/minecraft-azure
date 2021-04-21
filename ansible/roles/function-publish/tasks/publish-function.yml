@@ -20,6 +20,20 @@
     mode: '0644'
   become: True
 
+# - name: Az login config
+#   shell: |
+#      az login --service-principal --username [client_id] --password [client_secret] --tenant [tenant_id]
+#   args:
+#     chdir: "{{ mine_user_home }}/{{ function_dir_name }}"
+#   become: yes
+
+# - name: Force Update Function Settings
+#   shell: |
+#     az functionapp config appsettings set -n [function-app-name] -g [resource-group-name]  --settings "force_settings_update=true"
+#   args:
+#     chdir: "{{ mine_user_home }}/{{ function_dir_name }}"
+#   become: yes
+
 # - name: Publish Function
 #   shell: |
 #     func azure functionapp publish mine-function --force
