@@ -24,10 +24,20 @@ variable "project_name" {
 
 variable "rg_name" {
   type = string
-  default = "minecraft"
+  default = "minecraft-2"
 }
 
-variable "pub_ssh_file" {
+variable "ssh_key_username" {
+  type = string
+  default = "azureuser"
+}
+
+variable "ssh_key_pub" {
   type = string
   default = "~/.ssh/azure-mine.pub"
+}
+
+variable "ssh_key_private" {
+  type = string
+  default = "~/.ssh/azure-mine"
 }

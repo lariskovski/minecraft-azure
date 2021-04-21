@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    azurerm = {
+      source = "hashicorp/azurerm"
+      version = "2.56.0"
+    }
+  }
+}
+
 # Configure the Microsoft Azure Provider
 provider azurerm {
       features {}
@@ -11,16 +20,6 @@ provider azurerm {
 resource "azurerm_resource_group" "rg" {
   name = var.rg_name
   location = var.region
-}
-
-# Create a managed disk
-resource "azurerm_managed_disk" "disk" {
-  name                 = "${var.project_name}-disk"
-  location             = var.region
-  resource_group_name  = azurerm_resource_group.rg.name
-  storage_account_type = "Standard_LRS"
-  create_option        = "Empty"
-  disk_size_gb         = "30" # 30GB minimal size for the image
 }
 
 # Create virtual network
@@ -104,6 +103,16 @@ resource "azurerm_network_interface_security_group_association" "example" {
 # }
 # output "tls_private_key" { value = tls_private_key.sshkey.private_key_pem }
 
+# Create a managed disk
+resource "azurerm_managed_disk" "disk" {
+  name                 = "${var.project_name}-disk"
+  location             = var.region
+  resource_group_name  = azurerm_resource_group.rg.name
+  storage_account_type = "Standard_LRS"
+  create_option        = "Empty"
+  disk_size_gb         = "30" # 30GB minimal size for the image
+}
+
 # Create virtual machine
 resource "azurerm_linux_virtual_machine" "vm" {
     name                  = "${var.project_name}"
@@ -136,14 +145,30 @@ resource "azurerm_linux_virtual_machine" "vm" {
     }
 
     computer_name  = "${var.project_name}"
-    admin_username = "azureuser"
+    admin_username = "${var.ssh_key_username}"
     disable_password_authentication = true
 
     admin_ssh_key {
-        username       = "azureuser"
-        public_key     = file(var.pub_ssh_file)
+        username       = "${var.ssh_key_username}"
+        public_key     = file(var.ssh_key_pub)
         # public_key     = tls_private_key.sshkey.public_key_openssh
     }
+
+  # # Workaround to wait for vm to be available before executing the playbook
+  # provisioner "remote-exec" {
+  #   inline = ["sudo apt install python3 -y"]
+
+  #   connection {
+  #     host        = "${self.public_ip_address}"
+  #     type        = "ssh"
+  #     user        = "${var.ssh_key_username}"
+  #     private_key = "${file(var.ssh_key_private)}"
+  #   }
+  # }
+  #   # Execute Ansible Playbook
+  #   provisioner "local-exec" {
+  #   command = " ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i '${self.public_ip_address},' --user ${var.ssh_key_username} --private-key ${var.ssh_key_private} ../ansible/main.yml"
+  #   }
 }
 
 resource "local_file" "hosts" {
