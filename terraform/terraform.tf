@@ -1,71 +1,57 @@
-# terraform destroy -target=azurerm_linux_virtual_machine.minevm
 # Configure the Microsoft Azure Provider
 provider azurerm {
       features {}
-    #   version = "~>2.0"
-    #   subscription_id = "${var.subscription_id}"
-    #   client_id       = "${module.vaultprovider.client_id}"
-    #   client_secret   = "${module.vaultprovider.client_secret}"
-    #   tenant_id       = "${var.tenant_id}"
+      subscription_id = "${var.subscription_id}"
+      client_id       = "${var.client_id}"
+      client_secret   = "${var.client_secret}"
+      tenant_id       = "${var.tenant_id}"
 }
 
 # Create a resource group if it doesn't exist
-resource "azurerm_resource_group" "minecraft" {
-  name = "minecraft"
+resource "azurerm_resource_group" "rg" {
+  name = var.rg_name
   location = var.region
 }
 
 # Create a managed disk
-resource "azurerm_managed_disk" "minedisk" {
-  name                 = "minecraft-disk"
+resource "azurerm_managed_disk" "disk" {
+  name                 = "${var.project_name}-disk"
   location             = var.region
-  resource_group_name  = azurerm_resource_group.minecraft.name
+  resource_group_name  = azurerm_resource_group.rg.name
   storage_account_type = "Standard_LRS"
   create_option        = "Empty"
-  disk_size_gb         = "30" # 30GB minimal for the image
-
-  tags = {
-    environment = "production"
-  }
+  disk_size_gb         = "30" # 30GB minimal size for the image
 }
 
 # Create virtual network
-resource "azurerm_virtual_network" "minenetwork" {
-    name                = "minecraft-net"
+resource "azurerm_virtual_network" "vnet" {
+    name                = "${var.project_name}-net"
     address_space       = ["10.0.0.0/16"]
     location            = var.region
-    resource_group_name = azurerm_resource_group.minecraft.name
-
-    tags = {
-        environment = "production"
-    }
+    resource_group_name = azurerm_resource_group.rg.name
 }
 
 # Create subnet
-resource "azurerm_subnet" "minesubnet" {
-    name                 = "mine-sub"
-    resource_group_name  = azurerm_resource_group.minecraft.name
-    virtual_network_name = azurerm_virtual_network.minenetwork.name
+resource "azurerm_subnet" "subnet" {
+    name                 = "${var.project_name}-sub"
+    resource_group_name  = azurerm_resource_group.rg.name
+    virtual_network_name = azurerm_virtual_network.vnet.name
     address_prefixes       = ["10.0.1.0/24"]
 }
 
 # Create public IPs
-resource "azurerm_public_ip" "mineip" {
-    name                         = "mineip"
+resource "azurerm_public_ip" "pip" {
+    name                         = "${var.project_name}-pip"
     location                     = var.region
-    resource_group_name          = azurerm_resource_group.minecraft.name
+    resource_group_name          = azurerm_resource_group.rg.name
     allocation_method            = "Static"
-
-    tags = {
-        environment = "production"
-    }
 }
 
 # Create Network Security Group and rule
-resource "azurerm_network_security_group" "minesecgroup" {
-    name                = "minesecgroup"
+resource "azurerm_network_security_group" "secgroup" {
+    name                = "secgroup"
     location            = var.region
-    resource_group_name = azurerm_resource_group.minecraft.name
+    resource_group_name = azurerm_resource_group.rg.name
 
     security_rule {
         name                       = "SSH"
@@ -79,7 +65,7 @@ resource "azurerm_network_security_group" "minesecgroup" {
         destination_address_prefix = "*"
     }
     security_rule {
-        name                       = "Mine"
+        name                       = "${var.project_name}"
         priority                   = 1002
         direction                  = "Inbound"
         access                     = "Allow"
@@ -89,50 +75,41 @@ resource "azurerm_network_security_group" "minesecgroup" {
         source_address_prefix      = "*"
         destination_address_prefix = "*"
     }
-
-
-    tags = {
-        environment = "production"
-    }
 }
 
 # Create network interface
-resource "azurerm_network_interface" "minenic" {
-    name                      = "minecraft"
+resource "azurerm_network_interface" "nic" {
+    name                      = "${var.project_name}-nic"
     location                  = var.region
-    resource_group_name       = azurerm_resource_group.minecraft.name
+    resource_group_name       = azurerm_resource_group.rg.name
 
     ip_configuration {
         name                          = "myNicConfiguration"
-        subnet_id                     = azurerm_subnet.minesubnet.id
+        subnet_id                     = azurerm_subnet.subnet.id
         private_ip_address_allocation = "Dynamic"
-        public_ip_address_id          = azurerm_public_ip.mineip.id
-    }
-
-    tags = {
-        environment = "production"
+        public_ip_address_id          = azurerm_public_ip.pip.id
     }
 }
 
 # Connect the security group to the network interface
 resource "azurerm_network_interface_security_group_association" "example" {
-    network_interface_id      = azurerm_network_interface.minenic.id
-    network_security_group_id = azurerm_network_security_group.minesecgroup.id
+    network_interface_id      = azurerm_network_interface.nic.id
+    network_security_group_id = azurerm_network_security_group.secgroup.id
 }
 
 # Create (and display on output) an SSH key
-# resource "tls_private_key" "minesshkey" {
+# resource "tls_private_key" "sshkey" {
 #   algorithm = "RSA"
 #   rsa_bits = 4096
 # }
-# output "tls_private_key" { value = tls_private_key.minesshkey.private_key_pem }
+# output "tls_private_key" { value = tls_private_key.sshkey.private_key_pem }
 
 # Create virtual machine
-resource "azurerm_linux_virtual_machine" "minevm" {
-    name                  = "minecraft"
+resource "azurerm_linux_virtual_machine" "vm" {
+    name                  = "${var.project_name}"
     location              = var.region
-    resource_group_name   = azurerm_resource_group.minecraft.name
-    network_interface_ids = [azurerm_network_interface.minenic.id]
+    resource_group_name   = azurerm_resource_group.rg.name
+    network_interface_ids = [azurerm_network_interface.nic.id]
     size                  = "Standard_B2s"
     # size                  = "Standard_DS1_v2"
 
@@ -142,7 +119,6 @@ resource "azurerm_linux_virtual_machine" "minevm" {
 
 
     os_disk {
-        # name = "mineosdisk" # (optional) needs to be unique on RG if name is set, when another machine is created gives error
         caching           = "ReadWrite"
         storage_account_type = "Premium_LRS"
         disk_size_gb = 30
@@ -159,47 +135,43 @@ resource "azurerm_linux_virtual_machine" "minevm" {
         version   = "latest"
     }
 
-    computer_name  = "minecraft"
+    computer_name  = "${var.project_name}"
     admin_username = "azureuser"
     disable_password_authentication = true
 
     admin_ssh_key {
         username       = "azureuser"
         public_key     = file(var.pub_ssh_file)
-        # public_key     = tls_private_key.minesshkey.public_key_openssh
-    }
-
-
-    tags = {
-        environment = "production"
+        # public_key     = tls_private_key.sshkey.public_key_openssh
     }
 }
 
 resource "local_file" "hosts" {
-    content  = azurerm_linux_virtual_machine.minevm.public_ip_address
+    content  = azurerm_linux_virtual_machine.vm.public_ip_address
     filename = "../ansible/hosts"
 }
 
-resource "azurerm_virtual_machine_data_disk_attachment" "attachminedisk" {
-  managed_disk_id    = azurerm_managed_disk.minedisk.id
-  virtual_machine_id = azurerm_linux_virtual_machine.minevm.id
+resource "azurerm_virtual_machine_data_disk_attachment" "attachment" {
+  managed_disk_id    = azurerm_managed_disk.disk.id
+  virtual_machine_id = azurerm_linux_virtual_machine.vm.id
   lun                = "10"
   caching            = "ReadWrite"
 }
 
-resource "azurerm_storage_account" "example" {
-  name                     = "startstopfunc"
-  resource_group_name      = azurerm_resource_group.minecraft.name
-  location                 = azurerm_resource_group.minecraft.location
+resource "azurerm_storage_account" "sa" {
+  name                     = "${var.project_name}funcsa"
+  resource_group_name      = azurerm_resource_group.rg.name
+  location                 = azurerm_resource_group.rg.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
 }
 
-resource "azurerm_app_service_plan" "example" {
-  name                = "azure-functions-test-service-plan"
-  location            = azurerm_resource_group.minecraft.location
-  resource_group_name = azurerm_resource_group.minecraft.name
-  kind                = "Linux"
+resource "azurerm_app_service_plan" "asp" {
+  name                = "${var.project_name}-asp"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+#   kind                = "Linux"
+  kind                = "FunctionApp"
   reserved            = true
   sku {
     tier = "Standard"
@@ -207,12 +179,12 @@ resource "azurerm_app_service_plan" "example" {
   }
 }
 
-resource "azurerm_function_app" "example" {
-  name                       = "mine-function"
-  location                   = azurerm_resource_group.minecraft.location
-  resource_group_name        = azurerm_resource_group.minecraft.name
-  app_service_plan_id        = azurerm_app_service_plan.example.id
-  storage_account_name       = azurerm_storage_account.example.name
-  storage_account_access_key = azurerm_storage_account.example.primary_access_key
+resource "azurerm_function_app" "func" {
+  name                       = "${var.project_name}-function"
+  location                   = azurerm_resource_group.rg.location
+  resource_group_name        = azurerm_resource_group.rg.name
+  app_service_plan_id        = azurerm_app_service_plan.asp.id
+  storage_account_name       = azurerm_storage_account.sa.name
+  storage_account_access_key = azurerm_storage_account.sa.primary_access_key
   os_type                    = "linux"
 }
