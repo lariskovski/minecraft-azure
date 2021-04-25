@@ -31,7 +31,7 @@
   mount:
     fstype: ext4
     src: /dev/sdc1
-    path: "{{ mine_user_home }}"
+    path: /home/minecraft/
     state: mounted
   become: True
 
@@ -46,12 +46,12 @@
     name: minecraft
     group: minecraft
     create_home: False
-    home: "{{ mine_user_home }}"
+    home: /home/minecraft/
   become: True
 
 - name: Change dir ownership, group and permissions
   file:
-    path: "{{ mine_user_home }}"
+    path: /home/minecraft/
     owner: minecraft
     group: minecraft
     mode: '0755'
