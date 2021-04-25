@@ -12,17 +12,9 @@
 
 - [x] Fix Service plan for function and deploy service app instead of function app
 
-- [ ] Add env vars to function settings
-
-- [ ] Fix function stop operation
-
-- [ ] Add application insights for function
-
 - [ ] Divide main code into modules
 
-- [ ] Add remote backend
-
-- [ ] [Create iam permission for the App Registration. Function App > IAM > Role Assignments](https://stackoverflow.com/questions/42134892/the-client-with-object-id-does-not-have-authorization-to-perform-action-microso)
+- [x] Add remote backend
 
 - [ ] Set VM to spot
 
@@ -30,9 +22,11 @@
 
 - [ ] Update DNS entry with new IP
 
+- [ ] Add env vars to function settings
+
 - [ ] Output function URL
 
-- [ ] Add local exec to call Ansible
+- [x] Add local-exec provisioner to call Ansible
 
 ### Ansible
 
@@ -50,9 +44,9 @@
 
 - [ ] Download latest world files (if exists on storage account) & restart service
 
-[Integrating Terraform and Ansible](https://github.com/ernesen/Terraform-Ansible)
-
 ###  Function
+
+- [ ] Add function usage on README
 
 - [ ] Check current status before start/stop
 
