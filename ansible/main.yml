@@ -1,5 +1,5 @@
 - hosts: all
   roles:
   - setup
-  - function-publish
+  # - function-publish
   - minecraft-setup

@@ -1,3 +1,20 @@
+terraform {
+  required_providers {
+    azurerm = {
+      source = "hashicorp/azurerm"
+      version = "2.56.0"
+    }
+  }
+
+  # # Needs previous Storage Account setup - Edit as needed
+  # backend "azurerm" {
+  #   resource_group_name   = "rg-tfstate"
+  #   storage_account_name  = "sa-tfstate"
+  #   container_name        = "minecraft-tfstate"
+  #   key                   = "terraform.tfstate"
+  # }
+}
+
 # Configure the Microsoft Azure Provider
 provider azurerm {
       features {}
@@ -11,16 +28,6 @@ provider azurerm {
 resource "azurerm_resource_group" "rg" {
   name = var.rg_name
   location = var.region
-}
-
-# Create a managed disk
-resource "azurerm_managed_disk" "disk" {
-  name                 = "${var.project_name}-disk"
-  location             = var.region
-  resource_group_name  = azurerm_resource_group.rg.name
-  storage_account_type = "Standard_LRS"
-  create_option        = "Empty"
-  disk_size_gb         = "30" # 30GB minimal size for the image
 }
 
 # Create virtual network
@@ -97,65 +104,81 @@ resource "azurerm_network_interface_security_group_association" "example" {
     network_security_group_id = azurerm_network_security_group.secgroup.id
 }
 
-# Create (and display on output) an SSH key
-# resource "tls_private_key" "sshkey" {
-#   algorithm = "RSA"
-#   rsa_bits = 4096
-# }
-# output "tls_private_key" { value = tls_private_key.sshkey.private_key_pem }
+# Create a managed disk
+resource "azurerm_managed_disk" "disk" {
+  name                 = "${var.project_name}-disk"
+  location             = var.region
+  resource_group_name  = azurerm_resource_group.rg.name
+  storage_account_type = "Standard_LRS"
+  create_option        = "Empty"
+  disk_size_gb         = "30" # 30GB minimal size for the image
+}
 
 # Create virtual machine
-resource "azurerm_linux_virtual_machine" "vm" {
+resource "azurerm_virtual_machine" "vm" {
     name                  = "${var.project_name}"
     location              = var.region
     resource_group_name   = azurerm_resource_group.rg.name
     network_interface_ids = [azurerm_network_interface.nic.id]
-    size                  = "Standard_B2s"
+    vm_size                  = "Standard_B2s"
     # size                  = "Standard_DS1_v2"
 
-    # Set VM to Spot
-    # priority = "Spot"
-    # eviction_policy = "Deallocate"
+    delete_os_disk_on_termination = true
+    delete_data_disks_on_termination = false
 
-
-    os_disk {
-        caching           = "ReadWrite"
-        storage_account_type = "Premium_LRS"
-        disk_size_gb = 30
-        # Set disk to ephemeral (read only?)
-        # diff_disk_settings {
-        # option = "Local"
-        # }
+    storage_image_reference {
+      publisher = "Canonical"
+      offer     = "UbuntuServer"
+      sku       = "18.04-LTS"
+      version   = "latest"
     }
 
-    source_image_reference {
-        publisher = "Canonical"
-        offer     = "UbuntuServer"
-        sku       = "18.04-LTS"
-        version   = "latest"
+    storage_os_disk {
+    name              = "${var.project_name}-osdisk"
+    create_option     = "FromImage"
+    caching           = "ReadWrite"
+    managed_disk_type = "Standard_LRS"
+    os_type = "linux"
     }
 
-    computer_name  = "${var.project_name}"
-    admin_username = "azureuser"
-    disable_password_authentication = true
-
-    admin_ssh_key {
-        username       = "azureuser"
-        public_key     = file(var.pub_ssh_file)
-        # public_key     = tls_private_key.sshkey.public_key_openssh
+    storage_data_disk {
+      name    = "${azurerm_managed_disk.disk.name}"
+      caching = "ReadWrite"
+      create_option = "Attach"
+      lun = 10
+      managed_disk_id = "${azurerm_managed_disk.disk.id}"
+      disk_size_gb = "${azurerm_managed_disk.disk.disk_size_gb}"
     }
-}
 
-resource "local_file" "hosts" {
-    content  = azurerm_linux_virtual_machine.vm.public_ip_address
-    filename = "../ansible/hosts"
-}
+    os_profile {
+      computer_name  = "${var.project_name}"
+      admin_username = "${var.ssh_key_username}"
+    }
 
-resource "azurerm_virtual_machine_data_disk_attachment" "attachment" {
-  managed_disk_id    = azurerm_managed_disk.disk.id
-  virtual_machine_id = azurerm_linux_virtual_machine.vm.id
-  lun                = "10"
-  caching            = "ReadWrite"
+    os_profile_linux_config {
+      disable_password_authentication = true
+      ssh_keys {
+        key_data = file(var.ssh_key_pub)
+        path     = "/home/${var.ssh_key_username}/.ssh/authorized_keys"
+      }
+    }
+    
+
+    # Workaround to wait for vm to be available before executing the playbook
+    provisioner "remote-exec" {
+      inline = ["echo alive"]
+
+      connection {
+        host        = "${azurerm_public_ip.pip.ip_address}"
+        user        = "${var.ssh_key_username}"
+        private_key = "${file(var.ssh_key_private)}"
+      }
+    }
+
+    # Execute Ansible Playbook
+    provisioner "local-exec" {
+      command = " ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i '${azurerm_public_ip.pip.ip_address},' --user ${var.ssh_key_username} --private-key ${var.ssh_key_private} ../ansible/main.yml"
+    }
 }
 
 resource "azurerm_storage_account" "sa" {
@@ -170,7 +193,6 @@ resource "azurerm_app_service_plan" "asp" {
   name                = "${var.project_name}-asp"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-#   kind                = "Linux"
   kind                = "FunctionApp"
   reserved            = true
   sku {

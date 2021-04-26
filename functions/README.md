@@ -25,8 +25,6 @@ sudo npm install -g azure-functions-core-tools@3 --unsafe-perm true
 
 ### Create The Default Function
 
-Interactive
-
 ~~~~
 func init --worker-runtime python
 func new --template "HTTP trigger" --name "HttpTrigger"
@@ -65,7 +63,14 @@ from .[modulename] import [function-name]
 
 ### Publish the Function 
 
-Publish the code to the created function app on azure.
+Publish the code to the created function app on azure. But before that, run ``az login`` and sync the function storage connection string and other infos with the command below:
+
+~~~~
+az login --service-principal --username [client_id] --password [client_secret] --tenant [tenant_id]
+az functionapp config appsettings set -n [function-app-name] -g [resource-group-name] --settings "key1=value1" "key2=value2"
+~~~~
+
+Now it's all set, execute:
 
 ~~~~
 func azure functionapp publish [func-name-on-azure]
